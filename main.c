@@ -8,15 +8,39 @@
 
 int main(void)
 {
-    Canvas *canvas = create_canvas(13, 13);
+    Canvas *canvas = create_canvas(10, 10);
     Drawing A = basic['A'];
     Drawing B = basic['B'];
-    draw_on_canvas(&A, canvas, 1, 1);
-    draw_on_canvas(&B, canvas, 7, 1);
-    draw_on_canvas(&B, canvas, 1, 7);
-    draw_on_canvas(&A, canvas, 7, 7);
+    FrameObject A1 = {
+        .x = 1,
+        .y = 1,
+        .z = 0,
+        .whitespaces = 0,
+        .drawing = &A
+    };
+    FrameObject A2 = {
+        .x = 1,
+        .y = 5,
+        .z = 1,
+        .whitespaces = 0,
+        .drawing = &A
+    };
+    FrameObject B1 = {
+        .x = 3,
+        .y = 3,
+        .z = 2,
+        .whitespaces = 0,
+        .drawing = &B
+    };
+
+    Frame *frame = create_frame();
+    insert_FrameObject(&B1, frame);
+    insert_FrameObject(&A1, frame);
+    insert_FrameObject(&A2, frame);
+    draw_frame(frame, canvas);
     render_canvas(canvas);
 
+    free_frame(frame);
     free_canvas(canvas);
     canvas = NULL;
 }

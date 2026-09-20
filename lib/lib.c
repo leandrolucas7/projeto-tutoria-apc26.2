@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include "definitions.h"
 
-void fill_borders(Canvas *canvas)
+/* CANVAS */
+void initialize_canvas(Canvas *canvas)
 {
     for (int i = 0; i < canvas->height + 2; i++)
     {
@@ -21,6 +22,24 @@ void fill_borders(Canvas *canvas)
 }
 
 
+Canvas *create_canvas(unsigned width, unsigned height)
+{
+    Canvas *canvas = malloc(sizeof(Canvas));
+    char **area = malloc((height + 2) * sizeof(char*));
+    for (int i = 0; i < height + 2; i++)
+    {
+        area[i] = malloc(width + 2);
+    }
+    
+    canvas->width = width;
+    canvas->height = height;
+    canvas->area = area;
+    initialize_canvas(canvas);
+    
+    return canvas;
+}
+
+
 void free_canvas(Canvas *canvas)
 {
     for (int i = 0; i < canvas->height + 2; i++)
@@ -34,25 +53,7 @@ void free_canvas(Canvas *canvas)
 }
 
 
-Canvas *create_canvas(unsigned width, unsigned height)
-{
-    Canvas *canvas = malloc(sizeof(Canvas));
-    char **area = malloc((height + 2) * sizeof(char*));
-    for (int i = 0; i < height + 2; i++)
-    {
-        area[i] = malloc(width + 2);
-    }
-    
-    canvas->width = width;
-    canvas->height = height;
-    canvas->area = area;
-    fill_borders(canvas);
-    
-    return canvas;
-}
-
-
-void draw_on_canvas(Drawing *drawing, Canvas *canvas, unsigned x, unsigned y)
+void draw_on_canvas(Drawing *drawing, Canvas *canvas, unsigned x, unsigned y, unsigned whitespaces)
 {
     // Only check if the starting coordinate is inside the canvas 
         // The user must check if the whole image fits
@@ -64,10 +65,19 @@ void draw_on_canvas(Drawing *drawing, Canvas *canvas, unsigned x, unsigned y)
     {
         for (int j = 0; j < drawing->width; j++)
         {
-            canvas->area[i+y+1][j+x+1] = drawing->data[j+row];
+            char c = drawing->data[j+row];
+            if (!whitespaces && c == ' ')
+                continue;
+            canvas->area[i+y+1][j+x+1] = c;
         }
         row += drawing->width;
     }
+}
+
+
+void clear_canvas(Canvas *canvas) 
+{
+    initialize_canvas(canvas);
 }
 
 
@@ -82,19 +92,61 @@ void render_canvas(Canvas *canvas)
     }
 }
 
-/*int main(void)
-{
 
-       
-    int idx = 0;
-    for(int i = 0; i < basic['A'].height; i++)
+/* FRAMES */
+
+Frame *create_frame()
+{
+    unsigned initial_size = 5;
+    Frame *frame = malloc(sizeof(Frame));
+    FrameObject **objects = malloc(initial_size * sizeof(FrameObject*));
+
+    frame->count = 0;
+    frame->capacity = initial_size;
+    frame->objects = objects;
+    return frame;
+}
+
+
+void free_frame(Frame *frame)
+{
+    free(frame->objects);
+    free(frame);
+}
+
+
+void insert_FrameObject(FrameObject *object, Frame *frame)
+{
+    if (frame->count >= frame->capacity)
     {
-        for (int j =0; j < basic['A'].width; j++)
-            printf("%c", basic['A'].data[idx++]);
-        printf("\n");
+        unsigned new_cap = frame->capacity * 2;
+        FrameObject **temp = realloc(frame->objects, new_cap * sizeof(FrameObject*));
+
+        // Not checking if realloc failed!!
+        frame->objects = temp;
+        frame->capacity = new_cap;
     }
 
-    printf("\n");
+    unsigned left = 0;
+    unsigned right = frame->count;
+    while (right > left)
+    {
+        unsigned mid = left + (right - left) / 2;
+        if (object->z >= frame->objects[mid]->z)
+            left = mid + 1;
+        else 
+            right = mid;
+    }
 
-}*/
+    for (unsigned i = frame->count; i > left; i--)
+        frame->objects[i] = frame->objects[i-1];
+    frame->objects[left] = object;
+    frame->count++;
+}
 
+
+void draw_frame(Frame *frame, Canvas *canvas)
+{
+    for (int i = 0; i < frame->count; i++)
+        draw_on_canvas(frame->objects[i]->drawing, canvas, frame->objects[i]->x, frame->objects[i]->y, frame->objects[i]->whitespaces);
+}
