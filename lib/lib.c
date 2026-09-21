@@ -1,3 +1,6 @@
+#ifndef LIB_C
+#define LIB_C 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "definitions.h"
@@ -61,9 +64,9 @@ void draw_on_canvas(Drawing *drawing, Canvas *canvas, unsigned x, unsigned y, un
         return;
 
     int row = 0;
-    for (int i = 0; i < drawing->height; i++)
+    for (int i = 0; i < drawing->height && i + y < canvas->height; i++)
     {
-        for (int j = 0; j < drawing->width; j++)
+        for (int j = 0; j < drawing->width && j + x < canvas->width; j++)
         {
             char c = drawing->data[j+row];
             if (!whitespaces && c == ' ')
@@ -241,5 +244,11 @@ void insert_SequenceInstance(SequenceInstance *instance, Animation *animation)
 
 void run_animation(Animation animation)
 {
-    // Implemente the logic
+    // define the "sleep time for each cycle"
+    // for loop that sleeps for the time above and repeates (total cycles x fps x repetitions)
+    // sequence instance counter starts at 0 and
+
 }
+
+
+#endif
