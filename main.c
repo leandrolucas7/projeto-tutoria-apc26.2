@@ -11,21 +11,21 @@ int main(void)
     Canvas *canvas = create_canvas(10, 10);
     Drawing A = basic['A'];
     Drawing B = basic['B'];
-    FrameObject A1 = {
+    SceneObject A1 = {
         .x = 1,
         .y = 1,
         .z = 0,
         .whitespaces = 0,
         .drawing = &A
     };
-    FrameObject A2 = {
+    SceneObject A2 = {
         .x = 1,
         .y = 5,
         .z = 1,
         .whitespaces = 0,
         .drawing = &A
     };
-    FrameObject B1 = {
+    SceneObject B1 = {
         .x = 3,
         .y = 3,
         .z = 2,
@@ -33,14 +33,14 @@ int main(void)
         .drawing = &B
     };
 
-    Frame *frame = create_frame();
-    insert_FrameObject(&B1, frame);
-    insert_FrameObject(&A1, frame);
-    insert_FrameObject(&A2, frame);
-    draw_frame(frame, canvas);
+    Scene *scene = create_scene();
+    insert_SceneObject(&B1, scene);
+    insert_SceneObject(&A1, scene);
+    insert_SceneObject(&A2, scene);
+    draw_scene(scene, canvas);
     render_canvas(canvas);
 
-    free_frame(frame);
+    free_scene(scene);
     free_canvas(canvas);
     canvas = NULL;
 }
