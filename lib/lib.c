@@ -263,7 +263,7 @@ void insert_Sequence(
         unsigned short repeat, 
         Animation *animation)
 {
-    SequenceInstance *instance = malloc(sizeof(SequenceInstance*));
+    SequenceInstance *instance = malloc(sizeof(SequenceInstance));
     instance->start_cycle = start_cycle;
     instance->end_cycle = end_cycle;
     instance->cycles_per_scene = cycles_per_scene;
