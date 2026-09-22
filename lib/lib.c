@@ -148,6 +148,19 @@ void insert_SceneObject(SceneObject *object, Scene *scene)
 }
 
 
+void insert_Drawing(Drawing *drawing, unsigned x, unsigned y, Scene *scene)
+{
+    SceneObject *obj = malloc(sizeof(SceneObject));
+    obj->drawing = drawing;
+    obj->x = x;
+    obj->y = y;
+    obj->z = 0;
+    obj->whitespaces = 0;
+
+    insert_SceneObject(obj, scene);
+}
+
+
 void draw_scene(Scene *scene, Canvas *canvas)
 {
     for (int i = 0; i < scene->count; i++)
