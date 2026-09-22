@@ -250,10 +250,21 @@ void run_animation(Animation *animation, Canvas *canvas)
 
     unsigned long long base_wait = 1000000000 / animation->fps;
     // Loop of the animation
-    for (int i = 0; i < animation->repetitions; i++)
+    for (int i = 0; i < animation->repeat; i++)
     {
-        int current_sequence = 0;
-        int sequence_repetition = 0;
+        // Reset the cycle values of the Sequences, in case of a looped animation
+        if (i > 0)
+        {
+            for (int j = 0; j < animation->count; j++)
+            {
+                unsigned duration = animation->instances[j]->end_cycle - animation->instances[j]->start_cycle + 1;
+                animation->instances[j]->start_cycle -= (duration * (animation->instances[j]->repeat - 1));
+                animation->instances[j]->end_cycle -= (duration * (animation->instances[j]->repeat - 1));
+                animation->instances[j]->scene_tracker = 0;
+                animation->instances[j]->repetitions_counter = 0; 
+            }
+        }
+
         // Each cycle (frame) of the animation
         for (int j = 0; j < animation->total_cycles; j++)
         {
@@ -262,38 +273,42 @@ void run_animation(Animation *animation, Canvas *canvas)
             // Reset the cursor for redrawing the cursor and clear the canvas
             printf("\033[H");
             clear_canvas(canvas);
-            // draw the sequence scenes
-            int valid_sequence = 0;
-            for (int k = 0; k < animation->instances[current_sequence]->sequence->count; k++)
+            // Draw the current scene of each of the sequence instances
+            for (int k = 0; k < animation->count; k++)
             {
                 // Not on the time span of the current sequence
-                if (j < animation->instances[current_sequence]->start_cycle || j > animation->instances[current_sequence]->end_cycle)
+                if (animation->instances[k]->start_cycle > j || animation->instances[k]->end_cycle < j)
                     continue;
 
                 // verify the correct scene of the sequence to draw 
-                if (j != animation->instances[current_sequence]->start_cycle && (j - animation->instances[current_sequence]->start_cycle) % animation->instances[current_sequence]->cycles_per_scene == 0)
-                    animation->instances[current_sequence]->scene_tracker++;
+                if (j != animation->instances[k]->start_cycle && (j - animation->instances[k]->start_cycle) % animation->instances[k]->cycles_per_scene == 0)
+                    // Prevent the scene tracker to be larger than the number of scenes in the sequence 
+                        // In case the user planned the cycles per scene poorly: it will "stuck" on the last scene until the end of the sequence end cycle
+                    if (animation->instances[k]->scene_tracker < animation->instances[k]->sequence->count - 1)
+                        animation->instances[k]->scene_tracker++;
 
                 // Draw the correct scene of the sequence;
-                draw_scene(animation->instances[current_sequence]->sequence->scenes[animation->instances[current_sequence]->scene_tracker], canvas);
-                valid_sequence = 1;
+                draw_scene(animation->instances[k]->sequence->scenes[animation->instances[k]->scene_tracker], canvas);
 
-            }
-
-            if (!valid_sequence)
-                return;
-
-            // Next Sequence
-            if (++sequence_repetition >= animation->instances[current_sequence]->repetitions)
-            {
-                current_sequence++;
-                sequence_repetition = 0;
+                // End of the sequence 
+                if (animation->instances[k]->end_cycle == j)
+                {
+                    animation->instances[k]->repetitions_counter++;
+                    // In case the current sequence is over but has a repetition
+                    if (animation->instances[k]->repetitions_counter < animation->instances[k]->repeat)
+                    {
+                        unsigned duration = animation->instances[k]->end_cycle - animation->instances[k]->start_cycle + 1;
+                        animation->instances[k]->start_cycle += duration;
+                        animation->instances[k]->end_cycle += duration;
+                        animation->instances[k]->scene_tracker = 0;
+                    }
+                }
             }
 
             render_canvas(canvas);
             unsigned long long t1 = get_time_ns();
             unsigned wait_time = base_wait > t1 - t0 ? base_wait - (t1 - t0) : 0;
-            wait_ns(wait_time); // what if this is negative??? does the unsigned caps at zero?
+            wait_ns(wait_time); 
         }
     }
 }

@@ -44,7 +44,8 @@ typedef struct {
     unsigned short cycles_per_scene; // 3: the scene changes every 3 "cycles" (fps)
     unsigned short scene_tracker;
     unsigned short layer; // bigger number, "closer to the camera" (overlaps other Sequences)
-    unsigned short repetitions;
+    unsigned short repeat;
+    unsigned short repetitions_counter;
     Sequence *sequence;
 } SequenceInstance;
 
@@ -54,7 +55,7 @@ typedef struct {
     unsigned capacity;
     unsigned total_cycles; // total_cycles/fps = duration in seconds
     unsigned short fps;
-    unsigned short repetitions;
+    unsigned short repeat;
     SequenceInstance **instances;
 } Animation;
 
