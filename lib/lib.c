@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "definitions.h"
+#include "timer.c"
 
 /* CANVAS */
 void initialize_canvas(Canvas *canvas)
@@ -242,12 +243,59 @@ void insert_SequenceInstance(SequenceInstance *instance, Animation *animation)
 }
 
 
-void run_animation(Animation animation)
+void run_animation(Animation *animation, Canvas *canvas)
 {
-    // define the "sleep time for each cycle"
-    // for loop that sleeps for the time above and repeates (total cycles x fps x repetitions)
-    // sequence instance counter starts at 0 and
+    // Clear the terminal
+    printf("\033[2J");
 
+    unsigned long long base_wait = 1000000000 / animation->fps;
+    // Loop of the animation
+    for (int i = 0; i < animation->repetitions; i++)
+    {
+        int current_sequence = 0;
+        int sequence_repetition = 0;
+        // Each cycle (frame) of the animation
+        for (int j = 0; j < animation->total_cycles; j++)
+        {
+            unsigned long long t0 = get_time_ns();
+
+            // Reset the cursor for redrawing the cursor and clear the canvas
+            printf("\033[H");
+            clear_canvas(canvas);
+            // draw the sequence scenes
+            int valid_sequence = 0;
+            for (int k = 0; k < animation->instances[current_sequence]->sequence->count; k++)
+            {
+                // Not on the time span of the current sequence
+                if (j < animation->instances[current_sequence]->start_cycle || j > animation->instances[current_sequence]->end_cycle)
+                    continue;
+
+                // verify the correct scene of the sequence to draw 
+                if (j != animation->instances[current_sequence]->start_cycle && (j - animation->instances[current_sequence]->start_cycle) % animation->instances[current_sequence]->cycles_per_scene == 0)
+                    animation->instances[current_sequence]->scene_tracker++;
+
+                // Draw the correct scene of the sequence;
+                draw_scene(animation->instances[current_sequence]->sequence->scenes[animation->instances[current_sequence]->scene_tracker], canvas);
+                valid_sequence = 1;
+
+            }
+
+            if (!valid_sequence)
+                return;
+
+            // Next Sequence
+            if (++sequence_repetition >= animation->instances[current_sequence]->repetitions)
+            {
+                current_sequence++;
+                sequence_repetition = 0;
+            }
+
+            render_canvas(canvas);
+            unsigned long long t1 = get_time_ns();
+            unsigned wait_time = base_wait > t1 - t0 ? base_wait - (t1 - t0) : 0;
+            wait_ns(wait_time); // what if this is negative??? does the unsigned caps at zero?
+        }
+    }
 }
 
 

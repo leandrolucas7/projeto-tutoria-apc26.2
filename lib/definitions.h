@@ -40,8 +40,9 @@ typedef struct {
 
 typedef struct {
     unsigned start_cycle;
-    unsigned end_cycle; // not included: [start, end) => duration = end - start
-    unsigned cycles_per_scene; // 3: the scene changes every 3 "cycles" (fps)
+    unsigned end_cycle; 
+    unsigned short cycles_per_scene; // 3: the scene changes every 3 "cycles" (fps)
+    unsigned short scene_tracker;
     unsigned short layer; // bigger number, "closer to the camera" (overlaps other Sequences)
     unsigned short repetitions;
     Sequence *sequence;
