@@ -193,7 +193,7 @@ void insert_Scene(Scene *scene, Sequence *sequence)
 
 
 /* ANIMATIONS */
-Animation *create_animation()
+Animation *create_animation(unsigned fps, unsigned repeat)
 {
     unsigned initial_size = 5;
     Animation *animation = malloc(sizeof(Animation));
@@ -201,6 +201,9 @@ Animation *create_animation()
 
     animation->count = 0;
     animation->capacity = initial_size;
+    animation->total_cycles = 0;
+    animation->fps = fps;
+    animation->repeat = repeat;
     animation->instances = instances;
     return animation;
 }
@@ -208,6 +211,8 @@ Animation *create_animation()
 
 void free_animation(Animation *animation)
 {
+    for (int i = 0; i < animation->count; i++)
+        free(animation->instances[i]);
     free(animation->instances);
     free(animation);
 }
@@ -240,6 +245,34 @@ void insert_SequenceInstance(SequenceInstance *instance, Animation *animation)
         animation->instances[i] = animation->instances[i-1];
     animation->instances[left] = instance;
     animation->count++;
+
+    // Update the total_cycles of the animation 
+    unsigned duration = instance->end_cycle - instance->start_cycle + 1;
+    unsigned final_cycle = instance->start_cycle + (duration * instance->repeat);
+    if (final_cycle > animation->total_cycles)
+        animation->total_cycles = final_cycle;
+}
+
+
+void insert_Sequence(
+        Sequence *sequence, 
+        unsigned start_cycle, 
+        unsigned end_cycle, 
+        unsigned short cycles_per_scene, 
+        unsigned short layer, 
+        unsigned short repeat, 
+        Animation *animation)
+{
+    SequenceInstance *instance = malloc(sizeof(SequenceInstance*));
+    instance->start_cycle = start_cycle;
+    instance->end_cycle = end_cycle;
+    instance->cycles_per_scene = cycles_per_scene;
+    instance->scene_tracker = 0;
+    instance->layer = layer;
+    instance->repeat = repeat;
+    instance->repetitions_counter = 0;
+    instance->sequence = sequence;
+    insert_SequenceInstance(instance, animation);
 }
 
 
