@@ -16,11 +16,23 @@ typedef struct {
 
 
 typedef struct {
+    unsigned idle_count;
+    unsigned walk_r_count;
+    unsigned walk_l_count;
+    unsigned action_count;
+    const Drawing *idle;
+    const Drawing *walk_r;
+    const Drawing *walk_l;
+    const Drawing *action;
+} Sprite;
+
+
+typedef struct {
     unsigned x;
     unsigned y;
     int z; // Used to indicate the proximity/distance to the screen and order of "painting" of the drawings (- -> +)
     unsigned whitespaces;
-    Drawing *drawing;
+    const Drawing *drawing;
 } SceneObject;
 
 

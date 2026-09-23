@@ -57,7 +57,7 @@ void free_canvas(Canvas *canvas)
 }
 
 
-void draw_on_canvas(Drawing *drawing, Canvas *canvas, unsigned x, unsigned y, unsigned whitespaces)
+void draw_on_canvas(const Drawing *drawing, Canvas *canvas, unsigned x, unsigned y, unsigned whitespaces)
 {
     // Only check if the starting coordinate is inside the canvas 
         // The user must check if the whole image fits
@@ -148,7 +148,7 @@ void insert_SceneObject(SceneObject *object, Scene *scene)
 }
 
 
-void insert_Drawing(Drawing *drawing, unsigned x, unsigned y, Scene *scene)
+void insert_Drawing(const Drawing *drawing, unsigned x, unsigned y, Scene *scene)
 {
     SceneObject *obj = malloc(sizeof(SceneObject));
     obj->drawing = drawing;
