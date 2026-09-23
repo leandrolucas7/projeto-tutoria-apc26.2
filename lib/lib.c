@@ -44,7 +44,7 @@ Canvas *create_canvas(unsigned width, unsigned height)
 }
 
 
-void free_canvas(Canvas *canvas)
+void free_Canvas(Canvas *canvas)
 {
     for (int i = 0; i < canvas->height + 2; i++)
     {
@@ -111,7 +111,7 @@ Scene *create_scene()
 }
 
 
-void free_scene(Scene *scene)
+void free_Scene(Scene *scene)
 {
     free(scene->objects);
     free(scene);
@@ -182,7 +182,7 @@ Sequence *create_sequence()
 }
 
 
-void free_sequence(Sequence *sequence)
+void free_Sequence(Sequence *sequence)
 {
     free(sequence->scenes);
     free(sequence);
@@ -222,7 +222,7 @@ Animation *create_animation(unsigned fps, unsigned repeat)
 }
 
 
-void free_animation(Animation *animation)
+void free_Animation(Animation *animation)
 {
     for (int i = 0; i < animation->count; i++)
         free(animation->instances[i]);
@@ -271,7 +271,6 @@ void insert_Sequence(
         Sequence *sequence, 
         unsigned start_cycle, 
         unsigned end_cycle, 
-        unsigned short cycles_per_scene, 
         unsigned short layer, 
         unsigned short repeat, 
         Animation *animation)
@@ -279,7 +278,7 @@ void insert_Sequence(
     SequenceInstance *instance = malloc(sizeof(SequenceInstance));
     instance->start_cycle = start_cycle;
     instance->end_cycle = end_cycle;
-    instance->cycles_per_scene = cycles_per_scene;
+    instance->cycles_per_scene = (end_cycle - start_cycle + 1) / sequence->count;
     instance->scene_tracker = 0;
     instance->layer = layer;
     instance->repeat = repeat;

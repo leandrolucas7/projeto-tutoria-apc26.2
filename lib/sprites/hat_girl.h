@@ -1,10 +1,10 @@
 #ifndef FARMER_H
 #define FARMER_H
 
-#include "../definitions.h"
 #include <stdio.h>
+#include "../definitions.h"
 
-static const Drawing walk[] = {
+static const Drawing hat_girl_walk_r[] = {
     {
         .width = 28,
         .height = 31,
@@ -224,13 +224,13 @@ static const Drawing walk[] = {
 };
 
 
-static const Sprite FarmGirl = {
+static const Sprite HatGirl = {
     .idle_count = 0,
     .walk_r_count = 6,
     .walk_l_count = 0,
     .action_count = 0,
     .idle = NULL,
-    .walk_r = walk,
+    .walk_r = hat_girl_walk_r,
     .walk_l = NULL,
     .action = NULL
 };
